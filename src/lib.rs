@@ -78,7 +78,7 @@ fn write_bytes_to_path(bytes: &[u8]) -> Result<NamedTempFile, Error> {
 
 redis_module! {
     name: "LOADMODBYTES",
-    version: 1,
+    version: 2,
     data_types: [],
     commands: [
         ["LOADMODBYTES", dispatch, "", 0, 0, 0],
