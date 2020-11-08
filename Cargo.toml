@@ -17,4 +17,4 @@ failure = "0.1.8"
 redis-module = "0.10"
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["staticlib"]
