@@ -411,6 +411,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "redis-loadmodbytes"
+version = "0.1.0"
+dependencies = [
+ "base64",
+ "failure",
+ "redis-module",
+ "tempfile",
+]
+
+[[package]]
 name = "redis-module"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -422,16 +432,6 @@ dependencies = [
  "enum-primitive-derive",
  "libc",
  "num-traits 0.2.12",
-]
-
-[[package]]
-name = "redis-module-shim"
-version = "0.1.0"
-dependencies = [
- "base64",
- "failure",
- "redis-module",
- "tempfile",
 ]
 
 [[package]]
