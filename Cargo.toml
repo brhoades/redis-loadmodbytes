@@ -12,8 +12,6 @@ tempfile = "3"
 failure = "0.1.8"
 
 base64 = "0.13"
-dlopen = "0.1.8"
-dlopen_derive = "0.1.4"
 
 [lib]
 crate-type = ["cdylib"]
