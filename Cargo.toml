@@ -1,6 +1,6 @@
 [package]
 name = "redis-loadmodbytes"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Billy J Rhoades II <me@brod.es>"]
 edition = "2018"
 license = "MIT"
@@ -17,4 +17,4 @@ failure = "0.1.8"
 redis-module = "0.10"
 
 [lib]
-crate-type = ["staticlib"]
+crate-type = ["cdylib", "rlib"]
