@@ -14,7 +14,7 @@ tempfile = "3"
 base64 = "0.13"
 
 failure = "0.1.8"
-redis-module = "0.10"
+redis-module = { git = "https://github.com/brhoades/redismodule-rs", rev = "90e530f" }
 
 [lib]
 crate-type = ["cdylib", "rlib"]

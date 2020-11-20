@@ -81,6 +81,6 @@ redis_module! {
     version: 2,
     data_types: [],
     commands: [
-        ["LOADMODBYTES", dispatch, "", 0, 0, 0],
+        ["LOADMODBYTES", dispatch, "", 0, 0, 0, true],
     ],
 }

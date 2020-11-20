@@ -223,6 +223,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9b919933a397b79c37e33b77bb2aa3dc8eb6e165ad809e58ff75bc7db2e34574"
 
 [[package]]
+name = "heck"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "20564e78d53d2bb135c343b3f47714a56af2061f1c928fdb541dc7b9fdd94205"
+dependencies = [
+ "unicode-segmentation",
+]
+
+[[package]]
 name = "hermit-abi"
 version = "0.1.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -412,7 +421,7 @@ dependencies = [
 
 [[package]]
 name = "redis-loadmodbytes"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "base64",
  "failure",
@@ -422,9 +431,8 @@ dependencies = [
 
 [[package]]
 name = "redis-module"
-version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a3c7836e6e9ae6fe069e09a92f78e6d1db6a93e5edaf46ca30227fda88d16e61"
+version = "0.11.0"
+source = "git+https://github.com/brhoades/redismodule-rs?rev=90e530f#90e530f518be524fc6451f86364adb7b12ee4d52"
 dependencies = [
  "bindgen",
  "bitflags",
@@ -432,6 +440,7 @@ dependencies = [
  "enum-primitive-derive",
  "libc",
  "num-traits 0.2.12",
+ "strum_macros",
 ]
 
 [[package]]
@@ -490,6 +499,18 @@ name = "strsim"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ea5119cdb4c55b55d432abb513a0429384878c15dde60cc77b1c99de1a95a6a"
+
+[[package]]
+name = "strum_macros"
+version = "0.19.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e61bb0be289045cb80bfce000512e32d09f8337e54c186725da381377ad1f8d5"
+dependencies = [
+ "heck",
+ "proc-macro2",
+ "quote 1.0.7",
+ "syn 1.0.41",
+]
 
 [[package]]
 name = "syn"
@@ -574,6 +595,12 @@ checksum = "d40c6d1b69745a6ec6fb1ca717914848da4b44ae29d9b3080cbee91d72a69b14"
 dependencies = [
  "lazy_static",
 ]
+
+[[package]]
+name = "unicode-segmentation"
+version = "1.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "db8716a166f290ff49dabc18b44aa407cb7c6dbe1aa0971b44b8a24b0ca35aae"
 
 [[package]]
 name = "unicode-width"
