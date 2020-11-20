@@ -46,7 +46,7 @@ fn load_module(ctx: &Context, args: Vec<String>) -> Result<String, Error> {
         .collect::<Vec<_>>();
 
     ctx.call("MODULE", &loadargs)
-        .map(|_| Ok(format!("successfully loaded {} byte module", bytes.len())))
+        .map(|_| Ok("SUCCESS".to_string()))
         .map_err(|e| {
             format_err!(
                 "failed on \"MODULE LOAD\" call:\n\t{}\n\nCould the module be corrupt or already loaded?",
