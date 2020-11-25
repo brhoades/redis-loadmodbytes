@@ -5,15 +5,32 @@ use redis_module::{raw, Context as RContext, RedisValue};
 
 use crate::{context::*, LOADED_MODULES_HASH_KEY};
 
+const AOF_START: u64 = redis_module::raw::REDISMODULE_SUBEVENT_LOADING_AOF_START;
+const MODULE_UNLOADED: u64 = redis_module::raw::REDISMODULE_SUBEVENT_MODULE_UNLOADED;
+
 // TODO: LRU
 // Reads from LOADMODBYTES_MODULES and load all modules by their key.
 pub fn initialize(ctx: *mut raw::RedisModuleCtx) -> c_int {
     let context = RContext::new(ctx);
     let hook_load_results = unsafe {
-        vec![(
-            "before AOF load",
-            raw::subscribe_to_server_event(ctx, raw::RedisModuleEvent_Loading, Some(load_callback)),
-        )]
+        vec![
+            (
+                "before AOF load",
+                raw::subscribe_to_server_event(
+                    ctx,
+                    raw::RedisModuleEvent_Loading,
+                    Some(load_stored_modules_callback),
+                ),
+            ),
+            (
+                "module unload",
+                raw::subscribe_to_server_event(
+                    ctx,
+                    raw::RedisModuleEvent_ModuleChange,
+                    Some(unload_module_callback),
+                ),
+            ),
+        ]
     };
 
     for (name, res) in hook_load_results {
@@ -26,26 +43,30 @@ pub fn initialize(ctx: *mut raw::RedisModuleCtx) -> c_int {
     raw::Status::Ok as c_int
 }
 
-const AOF_START: u64 = redis_module::raw::REDISMODULE_SUBEVENT_LOADING_AOF_START;
+pub fn deinitialize(_ctx: *mut raw::RedisModuleCtx) -> c_int {
+    raw::Status::Ok as c_int
+}
 
 #[no_mangle]
-#[allow(non_snake_case)]
-pub extern "C" fn load_callback(
+pub extern "C" fn load_stored_modules_callback(
     ctx: *mut redis_module::raw::RedisModuleCtx,
     eid: redis_module::raw::RedisModuleEvent,
     subevent: u64,
     _data: *mut ::std::os::raw::c_void,
 ) {
     let ctx = RContext::new(ctx);
-    if subevent != redis_module::raw::REDISMODULE_SUBEVENT_LOADING_AOF_START {
-        ctx.log_debug(
-            format!(
-                "load called with eid {:?} and subevent {}, but skipped as we want subevent {}",
-                eid, subevent, AOF_START
-            )
-            .as_str(),
-        );
+    ctx.log_debug(&format!(
+        "load callback with {:?} and subevent {} received",
+        eid, subevent
+    ));
+    if subevent != AOF_START {
+        ctx.log_debug(&format!(
+            "skipping callback as we want subevent {}",
+            AOF_START
+        ));
         return;
+    } else {
+        ctx.log_notice("beginning load callback before AOF");
     }
 
     match load_stored_modules(&ctx) {
@@ -111,6 +132,61 @@ fn load_stored_modules<C: Context>(ctx: &C) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn deinitialize(_ctx: *mut raw::RedisModuleCtx) -> c_int {
-    raw::Status::Ok as c_int
+// unload_module_callback does bookkeeping to remove modules manually unloaded by users.
+#[no_mangle]
+pub extern "C" fn unload_module_callback(
+    context: *mut redis_module::raw::RedisModuleCtx,
+    eid: redis_module::raw::RedisModuleEvent,
+    subevent: u64,
+    data: *mut ::std::os::raw::c_void,
+) {
+    let ctx = RContext::new(context);
+    if subevent != MODULE_UNLOADED {
+        ctx.log_debug(&format!(
+            "module changed with eid {:?} and subevent {}, but skipped as we want subevent {}",
+            eid, subevent, MODULE_UNLOADED,
+        ));
+        return;
+    }
+
+    if data.is_null() {
+        ctx.log_warning("module change called with null data pointer");
+        return;
+    }
+    let data = unsafe { data as *mut raw::RedisModuleModuleChange };
+    let data = unsafe { &*data };
+    let name = match unsafe { std::ffi::CStr::from_ptr(data.module_name).to_str() } {
+        Ok(s) => s,
+        Err(e) => {
+            ctx.log_warning(&format!(
+                "unable to parse module name string from {:?}: {}",
+                data, e
+            ));
+            return;
+        }
+    };
+
+    if let Err(e) = record_module_unloaded(&ctx, name) {
+        ctx.log_warning(&format!(
+            "errored on load module callback ({:?}): {}",
+            data, e
+        ));
+    }
+}
+
+fn record_module_unloaded<C: Context, T: AsRef<str>>(ctx: &C, name: T) -> Result<(), Error> {
+    let name = name.as_ref();
+    let unloaded = match ctx.call("HDEL", &[LOADED_MODULES_HASH_KEY, name])? {
+        RedisValue::Integer(0) => false,
+        RedisValue::Integer(_) => true,
+        other => {
+            return Err(format_err!(
+                "unknown response from HDEL {}: {:?}",
+                LOADED_MODULES_HASH_KEY,
+                other
+            ))
+        }
+    };
+
+    Ok(())
 }
