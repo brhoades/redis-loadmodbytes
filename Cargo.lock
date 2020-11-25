@@ -432,7 +432,8 @@ dependencies = [
 [[package]]
 name = "redis-module"
 version = "0.11.0"
-source = "git+https://github.com/brhoades/redismodule-rs?rev=90e530f#90e530f518be524fc6451f86364adb7b12ee4d52"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "93338db38f8473d0666c342686538510fbbe0804d945c557e1fd8e8f69bed632"
 dependencies = [
  "bindgen",
  "bitflags",
@@ -598,9 +599,9 @@ dependencies = [
 
 [[package]]
 name = "unicode-segmentation"
-version = "1.7.0"
+version = "1.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db8716a166f290ff49dabc18b44aa407cb7c6dbe1aa0971b44b8a24b0ca35aae"
+checksum = "bb0d2e7be6ae3a5fa87eed5fb451aff96f2573d2694942e40543ae0bbe19c796"
 
 [[package]]
 name = "unicode-width"
